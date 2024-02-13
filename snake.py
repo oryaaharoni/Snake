@@ -17,7 +17,9 @@ window.title("snake")
 window.resizable(False, False)
 
 # canvas to draw
-canvas = tkinter.Canvas()
-
+# canvas- master prop is window, backgroundColor is black, height and width
+canvas = tkinter.Canvas(window, bg = "black", width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
+canvas.pack()
+window.update()
 
 window.mainloop()
