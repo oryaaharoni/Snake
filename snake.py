@@ -47,11 +47,17 @@ snake_body =[] #store all the body of the snake when food eaten
 # velocity- the change of the snake every time- event
 velocityX = 0
 velocityY = 0
+game_over = False
+score = 0
 
 def change_direction(e):   #e= event
     # print(e)      
-    # print(e.keysym) #wich key i pressed
+    # print(e.keysym) #which key i pressed
     global velocityX, velocityY
+
+    if (game_over):
+        return
+
 
     if (e.keysym=="Up" and velocityY != 1):
         velocityX = 0
@@ -68,26 +74,41 @@ def change_direction(e):   #e= event
 
 
 def move():
-    global snake
+    global snake, food, snake_body, game_over, score
+
+    if (game_over):
+        return
+    
+    # we croos the bounding of the window
+    if (snake.x < 0 or snake.x >= WINDOW_WIDTH or snake.y < 0 or snake.y >= WINDOW_HEIGHT):
+        game_over = True
+        return
+
+# !
+    for tile in snake_body:
+        if (snake.x == tile.x and snake.y == tile.y):
+            game_over = True
+            return
 
     #collision
     if (snake.x == food.x and snake.y == food.y):
         snake_body.append(Tile(food.x, food.y))
         # after the snake eat the food- we move the food to another position
-        food.x= random.randint(0, COLS-1) * TILE_SIZE
-        food.y= random.randint(0, ROWS-1) * TILE_SIZE
+        food.x = random.randint(0, COLS-1) * TILE_SIZE
+        food.y = random.randint(0, ROWS-1) * TILE_SIZE
+        score += 1
 
     # update snake body
     # we want that the snake body start from the end of the body, until we get -1{index 0}, and the iteration is down to -1 every time
-    for i in range(len(snake_body)-1, -1,-1):
+    for i in range(len(snake_body)-1, -1, -1):
         tile = snake_body[i]
-        if (i==0):
-            tile.x= snake.x
-            tile.y= snake.y
+        if (i == 0):
+            tile.x = snake.x
+            tile.y = snake.y
         else:
             prev_tile = snake_body[i-1]
-            tile.x= prev_tile.x
-            tile.y= prev_tile.y
+            tile.x = prev_tile.x
+            tile.y = prev_tile.y
 
 
 
@@ -97,24 +118,26 @@ def move():
 
 
 def draw():
-    global snake
+    global snake, food, snake_body, game_over, score
     move()
 
     canvas.delete("all")  #clear the other frame
 
     # draw the food
-    canvas.create_rectangle(food.x, food.y, food.x + TILE_SIZE, food.y + TILE_SIZE , fill = 'red')
+    canvas.create_rectangle(food.x, food.y, food.x + TILE_SIZE, food.y + TILE_SIZE , fill = "red")
 
 
     # draw snake
     # fill- the color on the snake, and the other is the position top, botton, left , right
-    canvas.create_rectangle(snake.x, snake.y, snake.x + TILE_SIZE, snake.y + TILE_SIZE, fill = "lime green" )
+    canvas.create_rectangle(snake.x, snake.y, snake.x + TILE_SIZE, snake.y + TILE_SIZE, fill = "lime green")
     
     for tile in snake_body:
-        canvas.create_rectangle(tile.x, tile.y, tile.x + TILE_SIZE, tile.y + TILE_SIZE, fill = "lime green" )
+        canvas.create_rectangle(tile.x, tile.y, tile.x + TILE_SIZE, tile.y + TILE_SIZE, fill = "lime green")
 
-   
-
+    if (game_over):
+        canvas.create_text(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, font= "Arial 20", text= f"Game Over: {score}", fill="white")
+    else:
+        canvas.create_text(30, 20, font= "Arial 10", text=f"Score: {score}", fill="white")
 
     window.after(100, draw)  #after 100 millseconds i will call draw() again
 
