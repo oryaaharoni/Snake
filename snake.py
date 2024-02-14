@@ -14,19 +14,15 @@ class Tile:
         self.y = y
 
 
-# game window
 window = tkinter.Tk()
 window.title("snake")
-# we dont want that the user expend the size of the window hieght-false, width- false
 window.resizable(False, False)
 
-# canvas to draw
-# canvas- master prop is window, backgroundColor is black, height and width , borderwidth and highlightthickness remove the white border
 canvas = tkinter.Canvas(window, bg = "black", width = WINDOW_WIDTH, height = WINDOW_HEIGHT, borderwidth = 0, highlightthickness = 0)
 canvas.pack()
 window.update()
 
-# center the window on our computer screen
+
 window_width = window.winfo_width()
 window_height = window.winfo_height()
 screen_width = window.winfo_screenwidth()
@@ -35,29 +31,22 @@ screen_height = window.winfo_screenheight()
 window_x = int((screen_width/2) - (window_width/2))
 window_y = int((screen_height/2) - (window_height/2))
 
-# format string+objects
 window.geometry(f"{window_width}x{window_width}+{window_x}+{window_y}")
 
-# initial game 
-snake = Tile(5 * TILE_SIZE, 5 * TILE_SIZE) #single tile for the snake's head
+snake = Tile(5 * TILE_SIZE, 5 * TILE_SIZE)
 food = Tile(10 * TILE_SIZE, 10 * TILE_SIZE)
-snake_body =[] #store all the body of the snake when food eaten
+snake_body =[] 
 
-
-# velocity- the change of the snake every time- event
 velocityX = 0
 velocityY = 0
 game_over = False
 score = 0
 
-def change_direction(e):   #e= event
-    # print(e)      
-    # print(e.keysym) #which key i pressed
+def change_direction(e):  
     global velocityX, velocityY
 
     if (game_over):
         return
-
 
     if (e.keysym=="Up" and velocityY != 1):
         velocityX = 0
@@ -76,30 +65,24 @@ def change_direction(e):   #e= event
 def move():
     global snake, food, snake_body, game_over, score
 
-    if (game_over):
+    if (game_over): 
         return
-    
-    # we croos the bounding of the window
+
     if (snake.x < 0 or snake.x >= WINDOW_WIDTH or snake.y < 0 or snake.y >= WINDOW_HEIGHT):
         game_over = True
         return
 
-# !
     for tile in snake_body:
         if (snake.x == tile.x and snake.y == tile.y):
             game_over = True
             return
 
-    #collision
     if (snake.x == food.x and snake.y == food.y):
         snake_body.append(Tile(food.x, food.y))
-        # after the snake eat the food- we move the food to another position
         food.x = random.randint(0, COLS-1) * TILE_SIZE
         food.y = random.randint(0, ROWS-1) * TILE_SIZE
         score += 1
 
-    # update snake body
-    # we want that the snake body start from the end of the body, until we get -1{index 0}, and the iteration is down to -1 every time
     for i in range(len(snake_body)-1, -1, -1):
         tile = snake_body[i]
         if (i == 0):
@@ -110,9 +93,6 @@ def move():
             tile.x = prev_tile.x
             tile.y = prev_tile.y
 
-
-
-
     snake.x += velocityX * TILE_SIZE
     snake.y += velocityY * TILE_SIZE
 
@@ -121,14 +101,10 @@ def draw():
     global snake, food, snake_body, game_over, score
     move()
 
-    canvas.delete("all")  #clear the other frame
+    canvas.delete("all")  
 
-    # draw the food
     canvas.create_rectangle(food.x, food.y, food.x + TILE_SIZE, food.y + TILE_SIZE , fill = "red")
 
-
-    # draw snake
-    # fill- the color on the snake, and the other is the position top, botton, left , right
     canvas.create_rectangle(snake.x, snake.y, snake.x + TILE_SIZE, snake.y + TILE_SIZE, fill = "lime green")
     
     for tile in snake_body:
@@ -139,10 +115,9 @@ def draw():
     else:
         canvas.create_text(30, 20, font= "Arial 10", text=f"Score: {score}", fill="white")
 
-    window.after(100, draw)  #after 100 millseconds i will call draw() again
+    window.after(100, draw) 
 
 draw()
 
-# key listener- every time the key click the func is called
 window.bind("<KeyRelease>", change_direction)
 window.mainloop()
