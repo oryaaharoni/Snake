@@ -1,5 +1,6 @@
 import tkinter
 import random
+from tkinter.simpledialog import askinteger
 
 ROWS = 25
 COLS = 25
@@ -13,7 +14,6 @@ class Tile:
         self.x = x
         self.y = y
 
-
 window = tkinter.Tk()
 window.title("snake")
 window.resizable(False, False)
@@ -21,7 +21,6 @@ window.resizable(False, False)
 canvas = tkinter.Canvas(window, bg = "black", width = WINDOW_WIDTH, height = WINDOW_HEIGHT, borderwidth = 0, highlightthickness = 0)
 canvas.pack()
 window.update()
-
 
 window_width = window.winfo_width()
 window_height = window.winfo_height()
@@ -33,19 +32,20 @@ window_y = int((screen_height/2) - (window_height/2))
 
 window.geometry(f"{window_width}x{window_width}+{window_x}+{window_y}")
 
-snake = Tile(5 * TILE_SIZE, 5 * TILE_SIZE)
+snake = Tile(5 * TILE_SIZE, 5 * TILE_SIZE) 
 food = Tile(10 * TILE_SIZE, 10 * TILE_SIZE)
-snake_body =[] 
+snake_body =[]
 
 velocityX = 0
 velocityY = 0
 game_over = False
 score = 0
 
-def change_direction(e):  
+def change_direction(e):   
     global velocityX, velocityY
 
     if (game_over):
+        reset_game()
         return
 
     if (e.keysym=="Up" and velocityY != 1):
@@ -62,12 +62,46 @@ def change_direction(e):
         velocityY = 0
 
 
+def reset_game():
+    
+    top = tkinter.Tk()
+    top.title("Reset Game")
+    top.resizable(False, False)
+    top.geometry("200x200") 
+
+    def end():
+        window.destroy()
+        top.destroy()
+
+    def show():
+        global velocityX, velocityY, game_over, score, snake, food, snake_body
+        
+        velocityX = 0
+        velocityY = 0
+        game_over = False
+        score = 0
+        snake = Tile(5 * TILE_SIZE, 5 * TILE_SIZE)
+        food = Tile(10 * TILE_SIZE, 10 * TILE_SIZE)
+        snake_body = []
+        top.destroy()
+        draw()
+
+    m = tkinter.Message(top,text="reset game?")
+    m.place(x=30,y=10)
+    B_yes = tkinter.Button(top, text ="Yes", command = show, bg="green")
+    B_yes.place(x=30, y=30)
+    B_no = tkinter.Button(top, text ="No", command = end, bg="red")
+    B_no.place(x=70, y=30)
+    top.mainloop()
+
+
 def move():
     global snake, food, snake_body, game_over, score
 
-    if (game_over): 
+    if (game_over):
+        reset_game()
         return
-
+    
     if (snake.x < 0 or snake.x >= WINDOW_WIDTH or snake.y < 0 or snake.y >= WINDOW_HEIGHT):
         game_over = True
         return
